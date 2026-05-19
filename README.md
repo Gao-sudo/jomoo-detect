@@ -7,6 +7,9 @@ jomoo-testmodel/
 ├─ data/                       # 数据
 ├─ outputs/                    # 训练归档结果
 ├─ runs/                       # Ultralytics 原始输出
+├─ api/
+│  ├─ app.py                  # FastAPI 服务
+│  └─ __init__.py
 ├─ train/
 │  ├─ common.py                # 共享训练底座
 │  ├─ train_all.py             # 一键训练 YOLOv8s + YOLOv9c + YOLOv11s
@@ -296,3 +299,26 @@ outputs/
 - 若要确保使用最新训练权重，优先检查 `outputs/<model_name>/<run_tag>/weights/best.pt` 是否存在。
 - `--tta` 会把 `augment=True` 传给 Ultralytics `predict()`，默认关闭。
 
+## 12. HTTP 接口
+
+ 接口：`POST /api/v1/detect/categories`
+
+ 请求：`multipart/form-data`，字段名为 `images`，支持多张图片。
+
+ 响应：JSON 格式，包含 `code`、`msg`、`data`。
+
+ 返回字段说明：
+
+ - `code` 业务状态码（200 成功，非 200 为失败）
+ - `msg` 状态描述
+ - `data` 数组（单张/多张均返回数组）
+
+ ### 接口文档
+@@
+ **备注**：
+ 
+ - 未上传图片：`code=1001`，`msg=No image uploaded`
+ - 文件格式不支持：`code=1002`，`msg=Invalid file format`
+ - 图片超限：`code=1003`，`msg=Image size exceeds limit`
+ - 服务异常：`code=1004`，`msg=Server internal error`
+- 当前接口固定使用权重：`E:\code\jomoo-testmodel\outputs\yolov9c\20260428_105825\weights\best.pt`
