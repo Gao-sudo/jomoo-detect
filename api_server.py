@@ -17,12 +17,12 @@ from ultralytics import YOLO
 MODEL_PATH = Path("base") / "model.onnx"
 MODEL_NAME = "yolov9c-onnx"
 DEFAULT_DEVICE = "0"
-DEFAULT_IMGSZ = 1280
-DEFAULT_CONF = 0.25
-DEFAULT_IOU = 0.7
+DEFAULT_IMGSZ = 640
+DEFAULT_CONF = 0.65
+DEFAULT_IOU = 0.45
 DEFAULT_MAX_DET = 300
-DEFAULT_MAX_IMAGE_MB = 0
-SUPPORTED_IMAGE_EXTS = {".jpg", ".jpeg", ".png"}
+DEFAULT_MAX_IMAGE_MB = 10
+SUPPORTED_IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 class Settings:
     def __init__(self) -> None:
@@ -41,6 +41,9 @@ def get_settings() -> Settings:
 @lru_cache(maxsize=1)
 def get_model_bundle() -> tuple[YOLO, Path, str]:
     weights_path = MODEL_PATH
+    # 确保使用绝对路径（api_server.py 在项目根目录）
+    if not weights_path.is_absolute():
+        weights_path = Path(__file__).resolve().parent / weights_path
     if not weights_path.exists():
         raise FileNotFoundError(f"权重不存在: {weights_path}")
     model = YOLO(str(weights_path))
@@ -75,9 +78,6 @@ def _build_category_counter(result) -> dict[str, int]:
         counter[name] = counter.get(name, 0) + 1
     return counter
 
-# ==================================================================================
-# ✅✅✅ 【终极正确写法】Swagger 100% 显示文件选择框，支持一次多选多张 ✅✅✅
-# ==================================================================================
 @app.post("/api/v1/detect/categories")
 async def detect_categories(
     images: List[UploadFile] = File(..., description="上传图片文件，支持多张", media_type="image/*")
@@ -105,6 +105,7 @@ async def detect_categories(
             iou=settings.iou,
             device=settings.device,
             max_det=settings.max_det,
+            agnostic_nms=True,  # 启用类别无关NMS，减少同类别重叠
             verbose=False,
         )
         result = results[0] if results else None
