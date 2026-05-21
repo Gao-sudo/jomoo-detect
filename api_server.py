@@ -17,8 +17,8 @@ from ultralytics import YOLO
 MODEL_PATH = Path("base") / "model.onnx"
 MODEL_NAME = "yolov9c-onnx"
 DEFAULT_DEVICE = "0"
-DEFAULT_IMGSZ = 640
-DEFAULT_CONF = 0.65
+DEFAULT_IMGSZ = 1280
+DEFAULT_CONF = 0.5
 DEFAULT_IOU = 0.45
 DEFAULT_MAX_DET = 300
 DEFAULT_MAX_IMAGE_MB = 10
@@ -105,6 +105,7 @@ async def detect_categories(
             iou=settings.iou,
             device=settings.device,
             max_det=settings.max_det,
+            augment=True,  # 启用增强推理，提升小目标检测
             agnostic_nms=True,  # 启用类别无关NMS，减少同类别重叠
             verbose=False,
         )
