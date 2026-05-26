@@ -17,10 +17,30 @@ jomoo-testmodel/
 
 将训练导出的 ONNX 模型放到 `base/model.onnx`。
 
+## 依赖说明
+
+```powershell
+pip install -r requirements.txt
+```
+
 ## 启动服务
 
 ```powershell
 python api_server.py
+```
+
+## 打开接口文档
+
+服务启动后，在浏览器中访问：
+
+```text
+http://127.0.0.1:9234/docs
+```
+
+如果需要 ReDoc 文档页，也可以访问：
+
+```text
+http://127.0.0.1:9234/redoc
 ```
 
 ## Docker 部署

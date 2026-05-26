@@ -16,7 +16,7 @@ from ultralytics import YOLO
 # ====================== 配置 ======================
 MODEL_PATH = Path("base") / "model.onnx"
 MODEL_NAME = "yolov9c-onnx"
-DEFAULT_DEVICE = "0"
+DEFAULT_DEVICE = "cpu"
 DEFAULT_IMGSZ = 1280
 DEFAULT_CONF = 0.5
 DEFAULT_IOU = 0.45
@@ -58,7 +58,7 @@ async def handle_unexpected_error(_request: Request, _exc: Exception) -> JSONRes
         content={"code": 1004, "msg": "Server internal error", "data": None},
     )
 
-def _decode_image(payload: bytes) -> np.ndarray | None:
+def _decode_image(payload: bytes) -> Optional[np.ndarray]:
     if not payload: return None
     array = np.frombuffer(payload, dtype=np.uint8)
     if array.size == 0: return None
